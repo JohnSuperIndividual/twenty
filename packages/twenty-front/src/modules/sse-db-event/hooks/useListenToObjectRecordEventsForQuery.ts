@@ -3,13 +3,16 @@ import { getSnapshotValue } from '@/ui/utilities/state/utils/getSnapshotValue';
 import { useEffect } from 'react';
 import { useRecoilCallback } from 'recoil';
 import { type RecordGqlOperationSignature } from 'twenty-shared/types';
+import { isDefined } from 'twenty-shared/utils';
 
 export const useListenToObjectRecordEventsForQuery = ({
   queryId,
   operationSignature,
+  skip,
 }: {
   queryId: string;
   operationSignature: RecordGqlOperationSignature;
+  skip?: boolean;
 }) => {
   const changeQueryIdListenState = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -46,10 +49,14 @@ export const useListenToObjectRecordEventsForQuery = ({
   );
 
   useEffect(() => {
+    if (isDefined(skip) && skip === true) {
+      return;
+    }
+
     changeQueryIdListenState(true, queryId);
 
     return () => {
       changeQueryIdListenState(false, queryId);
     };
-  }, [changeQueryIdListenState, queryId]);
+  }, [changeQueryIdListenState, queryId, skip]);
 };
